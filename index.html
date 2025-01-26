@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>File Upload</title>
+</head>
+<body>
+  <h1>Upload a File</h1>
+  <form id="uploadForm">
+    <input type="file" id="fileInput" required>
+    <button type="submit">Upload</button>
+  </form>
+  <p id="result"></p>
+
+  <script>
+    // Function to handle file upload
+    async function uploadFile(file) {
+      const url = 'https://uguu.se/api.php?d=upload-tool'; // Uguu API URL
+      const formData = new FormData(); // Create FormData to send the file
+      formData.append('file', file); // Append the selected file
+
+      try {
+        const response = await fetch(url, {
+          method: 'POST',
+          body: formData,
+        });
+
+        // Check if the response is OK
+        if (!response.ok) {
+          throw new Error('Failed to upload the file');
+        }
+
+        const directLink = await response.text(); // Get the file URL as plain text
+        return directLink; // Return the file URL
+      } catch (error) {
+        console.error('Error:', error);
+        return null;
+      }
+    }
+
+    // Add event listener to the form
+    document.getElementById('uploadForm').addEventListener('submit', async (e) => {
+      e.preventDefault(); // Prevent form submission
+
+      const fileInput = document.getElementById('fileInput');
+      const file = fileInput.files[0]; // Get the selected file
+
+      if (!file) {
+        alert('Please select a file to upload.');
+        return;
+      }
+
+      const resultElement = document.getElementById('result');
+      resultElement.textContent = 'Uploading...';
+
+      const fileLink = await uploadFile(file); // Call the upload function
+
+      if (fileLink) {
+        resultElement.textContent = File uploaded successfully: ${fileLink};
+        // Example: Call another function and pass the direct link
+        useFileLink(fileLink);
+      } else {
+        resultElement.textContent = 'File upload failed.';
+      }
+    });
+
+    // Example function to use the direct link
+    function useFileLink(link) {
+      console.log('Direct link:', link);
+      // You can implement any functionality you want using the direct link here
+    }
+  </script>
+</body>
+</html>
